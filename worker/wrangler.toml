@@ -1,0 +1,7 @@
+name = "painel-mercado-proxy"
+main = "worker.js"
+compatibility_date = "2026-01-01"
+
+[vars]
+# origens autorizadas (sem barra no final), separadas por vírgula
+ALLOWED_ORIGINS = "https://pedropyunes.github.io"
