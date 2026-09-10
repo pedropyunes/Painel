@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Painel de Mercado</title>
+<meta name="theme-color" content="#0f141b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Painel">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header>
+  <div class="hd">
+    <div class="brand"><b>YUNY</b><span>Painel de Mercado</span></div>
+    <nav>
+      <a href="#juros">Juros</a><a href="#cambio">Câmbio</a><a href="#bolsas">Bolsas</a>
+      <a href="#incorp">Incorporadoras</a><a href="#fii">FIIs</a><a href="#br">Ações BR</a><a href="#us">Ações EUA</a>
+    </nav>
+    <div class="status">
+      <span><span class="dot live"></span>ao vivo</span>
+      <span><span class="dot delay"></span>B3 +15 min</span>
+      <span><span class="dot d1"></span>D-1 / mensal</span>
+      <span class="num" id="clock">—</span>
+      <button class="gear" id="btn-settings" title="Configurações">⚙</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div id="banner"></div>
+  <div class="agenda" id="agenda"></div>
+  <div class="strip" id="strip"></div>
+
+  <div class="grid3">
+    <section id="juros">
+      <div class="sh"><h2>Juros</h2><span class="src"><span class="dot live"></span>BCB · <span class="dot d1"></span>Tesouro Transparente (D-1) · <span class="dot live"></span>CME via Yahoo</span></div>
+      <div class="kv" id="juros-kv1"></div>
+      <div class="kv" id="juros-kv2"></div>
+      <div class="split">
+        <div>
+          <div class="sub">Curva prefixada (Tesouro) — hoje × D-1 × D-7 <span class="dim" id="curva-asof"></span></div>
+          <div class="chart" id="curva-chart"></div>
+          <div class="legend"><span><i style="background:#3ecf8e"></i>hoje</span><span><i style="background:#9aa7b7"></i>D-1</span><span><i style="background:#5f6c7c"></i>D-7</span></div>
+          <div class="sub">Prefixados — vértices</div>
+          <div class="tbl"><table><thead><tr><th>Título</th><th>Venc.</th><th>Taxa</th><th>Δ dia</th><th>Δ semana</th></tr></thead><tbody id="pre"></tbody></table></div>
+        </div>
+        <div>
+          <div class="sub">Precificação do FED — Fed Funds futures (CME)</div>
+          <div class="tbl"><table><thead><tr><th>Contrato</th><th>Taxa implícita</th><th>Δ vs atual</th><th>Δ D-1</th></tr></thead><tbody id="fed"></tbody></table></div>
+          <div class="sub">Treasuries e volatilidade</div>
+          <div class="kv" id="ust-kv"></div>
+          <div class="sub">Precificação do Copom</div>
+          <p class="note">Depende da curva de DI futuro da B3, que não tem fonte gratuita estável. Entra na fase 2 via raspagem das taxas referenciais da B3 na rotina diária. A curva prefixada do Tesouro ao lado é o melhor substituto público.</p>
+        </div>
+      </div>
+      <div class="sub" style="border-top:1px solid var(--line)">NTN-B (Tesouro IPCA+) e inflação implícita</div>
+      <div class="tbl"><table><thead><tr><th>Título</th><th>Venc.</th><th>Taxa real</th><th>Δ dia</th><th>Δ semana</th><th>Implícita</th><th>Δ implícita (semana)</th></tr></thead><tbody id="ntnb"></tbody></table></div>
+    </section>
+
+    <section id="cambio">
+      <div class="sh"><h2>Câmbio &amp; Commodities</h2><span class="src"><span class="dot live"></span>Yahoo · BCB (PTAX)</span></div>
+      <div class="tbl"><table><thead><tr><th>Ativo</th><th>Último</th><th>Δ dia</th><th>Δ mês</th><th>Δ ano</th></tr></thead><tbody id="fx"></tbody></table></div>
+    </section>
+
+    <section id="bolsas">
+      <div class="sh"><h2>Bolsas</h2><span class="src"><span class="dot live"></span>Yahoo</span></div>
+      <div class="tbl"><table><thead><tr><th>Índice</th><th>Último</th><th>Δ dia</th><th>Δ mês</th><th>Δ ano</th></tr></thead><tbody id="idx"></tbody></table></div>
+    </section>
+  </div>
+
+  <div class="grid2">
+    <section id="incorp">
+      <div class="sh"><h2>Incorporadoras</h2><span class="src"><span class="dot delay"></span>B3 via Yahoo</span></div>
+      <div class="tbl"><table><thead><tr><th>Ticker</th><th>Preço</th><th>Δ dia</th><th>Δ mês</th><th>Δ ano</th><th>Δ 12m</th></tr></thead><tbody id="incorp-b" data-list="incorp"></tbody></table></div>
+      <div class="hint"><span>Clique em um ticker para trocar. Enter confirma, Esc cancela, apagar remove.</span><button data-add="incorp">+ adicionar</button></div>
+    </section>
+    <section id="fii">
+      <div class="sh"><h2>FIIs</h2><span class="src"><span class="dot delay"></span>B3 via Yahoo</span></div>
+      <div class="kv premio" id="fii-kv"></div>
+      <div class="tbl"><table><thead><tr><th>Fundo</th><th>Cota</th><th>Δ dia</th><th>Δ mês</th><th>Δ ano</th><th>Δ 12m</th></tr></thead><tbody id="fii-b" data-list="fii"></tbody></table></div>
+      <div class="hint"><span>DY e P/VP entram na fase 2 (raspagem).</span><button data-add="fii">+ adicionar</button></div>
+    </section>
+  </div>
+
+  <div class="grid2">
+    <section id="br">
+      <div class="sh"><h2>Ações Brasil</h2><span class="src"><span class="dot delay"></span>B3 via Yahoo</span></div>
+      <div class="tbl"><table><thead><tr><th>Ticker</th><th>Preço</th><th>Δ dia</th><th>Δ mês</th><th>Δ ano</th><th>Δ 12m</th></tr></thead><tbody id="br-b" data-list="br"></tbody></table></div>
+      <div class="hint"><span>Clique em um ticker para trocar.</span><button data-add="br">+ adicionar</button></div>
+    </section>
+    <section id="us">
+      <div class="sh"><h2>Ações EUA</h2><span class="src"><span class="dot live"></span>Yahoo</span></div>
+      <div class="tbl"><table><thead><tr><th>Ticker</th><th>Preço</th><th>Δ dia</th><th>Δ mês</th><th>Δ ano</th><th>Δ 12m</th></tr></thead><tbody id="us-b" data-list="us"></tbody></table></div>
+      <div class="hint"><span>Clique em um ticker para trocar.</span><button data-add="us">+ adicionar</button></div>
+    </section>
+  </div>
+
+  <section class="rodape">
+    <div class="sub">Brasil macro <span class="dot d1"></span><span class="dim">IBGE · FGV · BCB — mensal</span></div>
+    <div class="kv k7" id="macro-kv"></div>
+    <div class="sub">Funding imobiliário <span class="dot d1"></span><span class="dim">BCB SGS — mensal</span></div>
+    <div class="kv k7" id="funding-kv"></div>
+  </section>
+  <p class="fontes" id="fontes">Fontes: Yahoo Finance (índices, ações, câmbio, commodities, Fed Funds futures — B3 com 15 min de atraso), BCB SGS (Selic, CDI, PTAX, IPCA, IGP-M, INCC, IBC-Br, poupança, crédito imobiliário) e Focus/Olinda, Tesouro Transparente (prefixados e NTN-B, D-1). Códigos SGS exibidos entre parênteses para conferência.</p>
+</main>
+
+<div class="modal" id="modal">
+  <div class="box">
+    <h3>Configurações</h3>
+    <label>URL do proxy (Cloudflare Worker)<input id="cfg-worker" placeholder="https://painel-mercado-proxy.SEU-USUARIO.workers.dev"></label>
+    <label>Atualização automática (segundos)<input id="cfg-refresh" type="number" min="30" step="30"></label>
+    <label>Agenda — uma linha por evento: <code>AAAA-MM-DD HH:MM Descrição</code> (hora opcional; use ! no fim para destacar)<textarea id="cfg-agenda"></textarea></label>
+    <div class="row">
+      <button class="btn danger sp" id="cfg-reset">Restaurar listas padrão</button>
+      <button class="btn" id="cfg-cancel">Cancelar</button>
+      <button class="btn primary" id="cfg-save">Salvar</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
